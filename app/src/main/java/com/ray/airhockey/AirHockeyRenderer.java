@@ -2,6 +2,10 @@ package com.ray.airhockey;
 
 import android.opengl.GLSurfaceView;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -16,6 +20,28 @@ import static android.opengl.GLES20.glViewport;
  * Description :
  */
 public class AirHockeyRenderer implements GLSurfaceView.Renderer {
+
+    private static final float[] TABLE_VERTICES = {
+            //triangle1
+            0f, 0f,
+            9f, 14f,
+            0f, 14f,
+            //triangle2
+            0f, 0f,
+            9f, 0f,
+            9f, 14f
+    };
+
+    private static final int BYTES_PER_FLOAT = 4;
+    private FloatBuffer mVertexData;
+
+    public AirHockeyRenderer() {
+        mVertexData = ByteBuffer
+                .allocateDirect(TABLE_VERTICES.length * BYTES_PER_FLOAT)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        mVertexData.put(TABLE_VERTICES);
+    }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
