@@ -7,6 +7,7 @@ import android.os.Bundle;
 public class AirHockeyActivity extends AppCompatActivity {
 
     private GLSurfaceView mGLSurfaceView;
+    private boolean mRendererSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,6 +17,7 @@ public class AirHockeyActivity extends AppCompatActivity {
         setContentView(mGLSurfaceView);
         mGLSurfaceView.setEGLContextClientVersion(2);
         mGLSurfaceView.setRenderer(new AirHockeyRenderer());
+        mRendererSet = true;
     }
 
     @Override

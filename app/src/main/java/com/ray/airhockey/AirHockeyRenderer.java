@@ -1,6 +1,11 @@
 package com.ray.airhockey;
 
+import android.content.Context;
 import android.opengl.GLSurfaceView;
+
+import com.ray.airhockey.util.LoggerConfig;
+import com.ray.airhockey.util.ShaderHelper;
+import com.ray.airhockey.util.TextResourceReader;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -12,6 +17,7 @@ import javax.microedition.khronos.opengles.GL10;
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glViewport;
 
 /**
@@ -32,6 +38,13 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
             9f, 14f
     };
 
+    private Context mContext;
+    private int mProgram;
+
+    public AirHockeyRenderer(Context context) {
+        mContext = context;
+    }
+
     private static final int BYTES_PER_FLOAT = 4;
     private FloatBuffer mVertexData;
 
@@ -46,6 +59,15 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         glClearColor(1f, 0f, 0f, 1f);
+        String vertexShaderResource = TextResourceReader.readTextFileFromResource(mContext, R.raw.simple_vertex_shader);
+        String fragmentShaderResource = TextResourceReader.readTextFileFromResource(mContext, R.raw.simple_fragment_shader);
+        int vertexShader = ShaderHelper.compileVertexShader(vertexShaderResource);
+        int fragmentShader = ShaderHelper.compileFragmentShader(fragmentShaderResource);
+        mProgram = ShaderHelper.linkProgram(vertexShader, fragmentShader);
+        if (LoggerConfig.ON) {
+            ShaderHelper.validateProgram(mProgram);
+        }
+        glUseProgram(mProgram);
     }
 
     @Override
