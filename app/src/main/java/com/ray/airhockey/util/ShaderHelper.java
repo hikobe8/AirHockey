@@ -1,6 +1,5 @@
 package com.ray.airhockey.util;
 
-import android.opengl.GLES20;
 import android.util.Log;
 
 import static android.opengl.GLES20.*;
