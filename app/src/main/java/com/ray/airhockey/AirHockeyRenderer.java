@@ -48,6 +48,14 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     private FloatBuffer mVertexData;
 
     private static final float[] TABLE_VERTICES = {
+            //border triangle1
+            -0.52f, -0.52f,
+            0.52f, 0.52f,
+            -0.52f, 0.52f,
+            //border triangle2
+            -0.52f, -0.52f,
+            0.52f, -0.52f,
+            0.52f, 0.52f,
             //triangle1
             -0.5f, -0.5f,
             0.5f, 0.5f,
@@ -103,14 +111,17 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         glClear(GL_COLOR_BUFFER_BIT);
-        glUniform4f(mUColorLocation, 1f, 1f, 1f, 1f); //white
+        //draw border of table
+        glUniform4f(mUColorLocation, 0f, 0f, 1f, 1f); //border color 0.5 0.5 0.5
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        glUniform4f(mUColorLocation, 1f, 1f, 1f, 1f); //white
+        glDrawArrays(GL_TRIANGLES, 6, 6);
         glUniform4f(mUColorLocation, 1f, 0f, 0f, 1f); //red
-        glDrawArrays(GL_LINES, 6, 2);
+        glDrawArrays(GL_LINES, 12, 2);
         glUniform4f(mUColorLocation, 0f, 0f, 1f, 1f); //blue
-        glDrawArrays(GL_POINTS, 8, 1);
+        glDrawArrays(GL_POINTS, 14, 1);
         glUniform4f(mUColorLocation, 0f, 1f, 0f, 1f); //green
-        glDrawArrays(GL_POINTS, 9, 1);
+        glDrawArrays(GL_POINTS, 15, 1);
     }
 
 }
