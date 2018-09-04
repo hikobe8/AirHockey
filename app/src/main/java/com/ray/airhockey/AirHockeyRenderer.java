@@ -38,7 +38,7 @@ import static android.opengl.GLES20.glViewport;
  */
 public class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
-    private static final int POSITION_COMPONENT_COUNT = 2;
+    private static final int POSITION_COMPONENT_COUNT = 4;
     private static final int COLOR_COMPONENT_COUNT = 3;
     private static final int BYTES_PER_FLOAT = 4;
     private static final int STRIDE = (POSITION_COMPONENT_COUNT + COLOR_COMPONENT_COUNT) * BYTES_PER_FLOAT;
@@ -55,25 +55,25 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
     private static final float[] TABLE_VERTICES = {
             //border fan
-            0f, 0f, 1f, 1f, 1f,
-            -0.52f, -0.82f, 0f, 0f, 0.8f,
-            0.52f, -0.82f, 0f, 0f, 0.8f,
-            0.52f, 0.82f, 0f, 0f, 0.8f,
-            -0.52f, 0.82f, 0f, 0f, 0.8f,
-            -0.52f, -0.82f, 0f, 0f, 0.8f,
+                0f,     0f, 0f, 1.5f, 1f, 1f, 1f,
+            -0.52f, -0.82f, 0f, 1f, 0f, 0f, 0.8f,
+             0.52f, -0.82f, 0f, 1f, 0f, 0f, 0.8f,
+             0.52f,  0.82f, 0f, 2f, 0f, 0f, 0.8f,
+            -0.52f,  0.82f, 0f, 2f, 0f, 0f, 0.8f,
+            -0.52f, -0.82f, 0f, 1f, 0f, 0f, 0.8f,
             //Triangle fan
-            0f, 0f, 1f, 1f, 1f,
-            -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
-            0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
-            0.5f, 0.8f, 0.7f, 0.7f, 0.7f,
-            -0.5f, 0.8f, 0.7f, 0.7f, 0.7f,
-            -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
+               0f,    0f, 0f, 1.5f, 1f,   1f,   1f,
+            -0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
+             0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
+             0.5f,  0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f,
+            -0.5f,  0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f,
+            -0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
             //line
-            -0.5f, 0f, 1.0f, 0f, 0f,
-            0.5f, 0f, 1.0f, 0f, 0f,
+            -0.5f, 0f, 0f, 1.5f, 1.0f, 0f, 0f,
+             0.5f, 0f, 0f, 1.5f, 1.0f, 0f, 0f,
             //mallets
-            0f, 0.25f, 0f, 0f, 1f,
-            0f, -0.25f, 0f, 1f, 0f
+            0f, -0.40f, 0f, 1.25f, 0f, 0f, 1f,
+            0f,  0.40f, 0f, 1.75f, 0f, 1f, 0f
     };
 
     private Context mContext;
