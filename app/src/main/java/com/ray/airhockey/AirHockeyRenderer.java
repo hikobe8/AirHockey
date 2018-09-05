@@ -1,10 +1,12 @@
 package com.ray.airhockey;
 
 import android.content.Context;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 
 import com.ray.airhockey.util.LoggerConfig;
+import com.ray.airhockey.util.MatrixHelper;
 import com.ray.airhockey.util.ShaderHelper;
 import com.ray.airhockey.util.TextResourceReader;
 
@@ -30,6 +32,7 @@ import static android.opengl.GLES20.glUniformMatrix4fv;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
+import static android.opengl.Matrix.*;
 
 /**
  * Author : hikobe8@github.com
@@ -38,7 +41,7 @@ import static android.opengl.GLES20.glViewport;
  */
 public class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
-    private static final int POSITION_COMPONENT_COUNT = 4;
+    private static final int POSITION_COMPONENT_COUNT = 2;
     private static final int COLOR_COMPONENT_COUNT = 3;
     private static final int BYTES_PER_FLOAT = 4;
     private static final int STRIDE = (POSITION_COMPONENT_COUNT + COLOR_COMPONENT_COUNT) * BYTES_PER_FLOAT;
@@ -51,29 +54,50 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     private int mAPositionLocation;
     private FloatBuffer mVertexData;
     private final float[] mProjectionMatrix = new float[16];
+    private final float[] mModelMatrix = new float[16];
     private int mUMatrixLocation;
 
     private static final float[] TABLE_VERTICES = {
+//            //border fan
+//                0f,     0f, 0f, 1.5f, 1f, 1f, 1f,
+//            -0.52f, -0.82f, 0f, 1f, 0f, 0f, 0.8f,
+//             0.52f, -0.82f, 0f, 1f, 0f, 0f, 0.8f,
+//             0.52f,  0.82f, 0f, 2f, 0f, 0f, 0.8f,
+//            -0.52f,  0.82f, 0f, 2f, 0f, 0f, 0.8f,
+//            -0.52f, -0.82f, 0f, 1f, 0f, 0f, 0.8f,
+//            //Triangle fan
+//               0f,    0f, 0f, 1.5f, 1f,   1f,   1f,
+//            -0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
+//             0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
+//             0.5f,  0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f,
+//            -0.5f,  0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f,
+//            -0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
+//            //line
+//            -0.5f, 0f, 0f, 1.5f, 1.0f, 0f, 0f,
+//             0.5f, 0f, 0f, 1.5f, 1.0f, 0f, 0f,
+//            //mallets
+//            0f, -0.40f, 0f, 1.25f, 0f, 0f, 1f,
+//            0f,  0.40f, 0f, 1.75f, 0f, 1f, 0f
             //border fan
-                0f,     0f, 0f, 1.5f, 1f, 1f, 1f,
-            -0.52f, -0.82f, 0f, 1f, 0f, 0f, 0.8f,
-             0.52f, -0.82f, 0f, 1f, 0f, 0f, 0.8f,
-             0.52f,  0.82f, 0f, 2f, 0f, 0f, 0.8f,
-            -0.52f,  0.82f, 0f, 2f, 0f, 0f, 0.8f,
-            -0.52f, -0.82f, 0f, 1f, 0f, 0f, 0.8f,
+            0f,         0f, 1f, 1f,   1f,
+            -0.52f, -0.82f, 0f, 0f, 0.8f,
+            0.52f,  -0.82f, 0f, 0f, 0.8f,
+            0.52f,   0.82f, 0f, 0f, 0.8f,
+            -0.52f,  0.82f, 0f, 0f, 0.8f,
+            -0.52f, -0.82f, 0f, 0f, 0.8f,
             //Triangle fan
-               0f,    0f, 0f, 1.5f, 1f,   1f,   1f,
-            -0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
-             0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
-             0.5f,  0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f,
-            -0.5f,  0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f,
-            -0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
+            0f,       0f,   1f,   1f,   1f,
+            -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
+            0.5f,  -0.8f, 0.7f, 0.7f, 0.7f,
+            0.5f,   0.8f, 0.7f, 0.7f, 0.7f,
+            -0.5f,  0.8f, 0.7f, 0.7f, 0.7f,
+            -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
             //line
-            -0.5f, 0f, 0f, 1.5f, 1.0f, 0f, 0f,
-             0.5f, 0f, 0f, 1.5f, 1.0f, 0f, 0f,
+            -0.5f, 0f, 1.0f, 0f, 0f,
+            0.5f,  0f, 1.0f, 0f, 0f,
             //mallets
-            0f, -0.40f, 0f, 1.25f, 0f, 0f, 1f,
-            0f,  0.40f, 0f, 1.75f, 0f, 1f, 0f
+            0f, -0.40f, 0f, 0f, 1f,
+            0f,  0.40f, 0f, 1f, 0f
     };
 
     private Context mContext;
@@ -114,14 +138,21 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         glViewport(0, 0, width, height);
-        final float aspectRatio = width > height ? width / height : height / width;
-        if (width > height) {
-            //横屏
-            Matrix.orthoM(mProjectionMatrix, 0, -aspectRatio, aspectRatio, -1f,1f,-1f,1f);
-        } else {
-            //竖屏
-            Matrix.orthoM(mProjectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio,-1f,1f);
-        }
+//        final float aspectRatio = width > height ? width / height : height / width;
+//        if (width > height) {
+//            //横屏
+//            Matrix.orthoM(mProjectionMatrix, 0, -aspectRatio, aspectRatio, -1f,1f,-1f,1f);
+//        } else {
+//            //竖屏
+//            Matrix.orthoM(mProjectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio,-1f,1f);
+//        }
+        MatrixHelper.perspectiveM(mProjectionMatrix, 45f, width * 1.f / height, 1f, 10f);
+        setIdentityM(mModelMatrix, 0);
+        translateM(mModelMatrix, 0, 0f, 0f, -2.5f);
+        rotateM(mModelMatrix, 0, -60f, 1f, 0f, 0f);
+        final float[] temp = new float[16];
+        multiplyMM(temp, 0, mProjectionMatrix, 0, mModelMatrix, 0);
+        System.arraycopy(temp, 0, mProjectionMatrix, 0, temp.length);
     }
 
     @Override
