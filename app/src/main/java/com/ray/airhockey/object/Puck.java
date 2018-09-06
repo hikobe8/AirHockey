@@ -2,16 +2,20 @@ package com.ray.airhockey.object;
 
 import com.ray.airhockey.data.VertexArray;
 import com.ray.airhockey.program.ColorShaderProgram;
-import com.ray.airhockey.util.Geometry;
 
 import java.util.List;
 
+import static com.ray.airhockey.object.ObjectBuilder.DrawCommand;
+import static com.ray.airhockey.object.ObjectBuilder.GeneratedData;
+import static com.ray.airhockey.util.Geometry.Cylinder;
+import static com.ray.airhockey.util.Geometry.Point;
+
 /***
  *  Author : ryu18356@gmail.com
- *  Create at 2018-09-05 15:18
+ *  Create at 2018-09-06 14:50
  *  description : 
  */
-public class Mallet {
+public class Puck {
 
     private static final int POSITION_COMPONENT_COUNT = 3;
 
@@ -19,12 +23,12 @@ public class Mallet {
 
     private final VertexArray mVertexArray;
 
-    private final List<ObjectBuilder.DrawCommand> mDrawCommandList;
+    private final List<DrawCommand> mDrawCommandList;
 
-    public Mallet(float radius, float height, int numPointsAroundMallet) {
-        ObjectBuilder.GeneratedData generatedData = ObjectBuilder.createMallet(
-                new Geometry.Point(0f, 0f, 0f), radius, height,
-                numPointsAroundMallet);
+    public Puck(float radius, float height, int numPointsAroundPuck) {
+        GeneratedData generatedData = ObjectBuilder.createPuck(
+                new Cylinder(new Point(0f, 0f, 0f), radius, height),
+                numPointsAroundPuck);
         mRadius = radius;
         mHeight = height;
         mVertexArray = new VertexArray(generatedData.mVertexData);
@@ -40,7 +44,7 @@ public class Mallet {
     }
 
     public void draw(){
-        for (ObjectBuilder.DrawCommand drawCommand : mDrawCommandList) {
+        for (DrawCommand drawCommand : mDrawCommandList) {
             drawCommand.draw();
         }
     }

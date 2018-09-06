@@ -1,11 +1,10 @@
 package com.ray.airhockey.object;
 
-import android.opengl.GLES20;
-
 import com.ray.airhockey.data.VertexArray;
 import com.ray.airhockey.program.TextureShaderProgram;
 
-import static android.opengl.GLES20.*;
+import static android.opengl.GLES20.GL_TRIANGLE_FAN;
+import static android.opengl.GLES20.glDrawArrays;
 import static com.ray.airhockey.Constants.BYTES_PER_FLOAT;
 
 /***
@@ -22,7 +21,7 @@ public class Table {
     private final VertexArray mVertexArray;
 
     private final float[] VERTEX_DATA = {
-            //Triangle fan
+            //Triangle fan. Order of coordinates : X, Y, S, T
             0f,       0f, 0.5f, 0.5f,
             -0.5f, -0.8f,   0f, 0.9f,
             0.5f,  -0.8f,   1f, 0.9f,

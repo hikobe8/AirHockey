@@ -4,6 +4,7 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 
 import com.ray.airhockey.object.Mallet;
+import com.ray.airhockey.object.Puck;
 import com.ray.airhockey.object.Table;
 import com.ray.airhockey.program.ColorShaderProgram;
 import com.ray.airhockey.program.TextureShaderProgram;
@@ -20,6 +21,7 @@ import static android.opengl.GLES20.glViewport;
 import static android.opengl.Matrix.multiplyMM;
 import static android.opengl.Matrix.rotateM;
 import static android.opengl.Matrix.setIdentityM;
+import static android.opengl.Matrix.setLookAtM;
 import static android.opengl.Matrix.translateM;
 
 /**
@@ -28,11 +30,17 @@ import static android.opengl.Matrix.translateM;
  * Description :
  */
 public class AirHockeyRenderer implements GLSurfaceView.Renderer {
+
     private final Context mContext;
+    private final float[] mViewMatrix = new float[16];
+    private final float[] mViewProjectionMatrix = new float[16];
+    private final float[] mModelViewProjectionMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mModelMatrix = new float[16];
+
     private Table mTable;
     private Mallet mMallet;
+    private Puck mPuck;
     private TextureShaderProgram mTextureShaderProgram;
     private ColorShaderProgram mColorShaderProgram;
     private int mTexture;
@@ -45,7 +53,8 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         glClearColor(0f, 0f, 0f, 1f);
         mTable = new Table();
-        mMallet = new Mallet();
+        mMallet = new Mallet(0.08f, 0.15f, 32);
+        mPuck = new Puck(0.06f, 0.02f, 32);
         mTextureShaderProgram = new TextureShaderProgram(mContext);
         mColorShaderProgram = new ColorShaderProgram(mContext);
         mTexture = TextureHelper.loadTexture(mContext, R.drawable.air_hockey_surface);
@@ -55,29 +64,48 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         glViewport(0, 0, width, height);
         MatrixHelper.perspectiveM(mProjectionMatrix, 45f, width * 1.f / height, 1f, 10f);
-        setIdentityM(mModelMatrix, 0);
-        translateM(mModelMatrix, 0, 0f, 0f, -2.5f);
-        rotateM(mModelMatrix, 0, -60f, 1f, 0f, 0f);
-        final float[] temp = new float[16];
-        multiplyMM(temp, 0, mProjectionMatrix, 0, mModelMatrix, 0);
-        System.arraycopy(temp, 0, mProjectionMatrix, 0, temp.length);
+        setLookAtM(mViewMatrix, 0, 0f, 1.2f, 2.2f, 0f, 0f, 0f, 0f, 1f, 0f);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         glClear(GL_COLOR_BUFFER_BIT);
+        multiplyMM(mViewProjectionMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0 );
+
         //draw the table
+        positionTableInScene();
         mTextureShaderProgram.useProgram();
-        mTextureShaderProgram.setUniforms(mProjectionMatrix, mTexture);
+        mTextureShaderProgram.setUniforms(mModelViewProjectionMatrix, mTexture);
         mTable.bindData(mTextureShaderProgram);
         mTable.draw();
 
         //draw the mallets
+        positionObjectInScene(0f, mMallet.mHeight/2f, -0.4f);
         mColorShaderProgram.useProgram();
-        mColorShaderProgram.setUniforms(mProjectionMatrix);
+        mColorShaderProgram.setUniforms(mModelViewProjectionMatrix, 1f, 0f, 0f);
         mMallet.bindData(mColorShaderProgram);
         mMallet.draw();
+        positionObjectInScene(0f, mMallet.mHeight/2f, 0.4f);
+        mColorShaderProgram.setUniforms(mModelViewProjectionMatrix, 0f, 0f, 1f);
+        mMallet.draw();
 
+        //draw the puck
+        positionObjectInScene(0f, mPuck.mHeight/2f, 0f);
+        mColorShaderProgram.setUniforms(mModelViewProjectionMatrix, 0.8f,0.8f, 1f);
+        mPuck.bindData(mColorShaderProgram);
+        mPuck.draw();
+    }
+
+    private void positionTableInScene(){
+        setIdentityM(mModelMatrix, 0);
+        rotateM(mModelMatrix, 0, -90f, 1f, 0f, 0f);
+        multiplyMM(mModelViewProjectionMatrix, 0, mViewProjectionMatrix, 0, mModelMatrix, 0);
+    }
+
+    private void positionObjectInScene(float x, float y, float z){
+        setIdentityM(mModelMatrix, 0);
+        translateM(mModelMatrix, 0, x, y, z);
+        multiplyMM(mModelViewProjectionMatrix, 0, mViewProjectionMatrix, 0, mModelMatrix, 0);
     }
 
 }
