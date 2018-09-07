@@ -27,6 +27,7 @@ import static android.opengl.Matrix.rotateM;
 import static android.opengl.Matrix.setIdentityM;
 import static android.opengl.Matrix.setLookAtM;
 import static android.opengl.Matrix.translateM;
+import static com.ray.airhockey.util.Geometry.*;
 import static com.ray.airhockey.util.Geometry.Point;
 import static com.ray.airhockey.util.Geometry.Ray;
 import static com.ray.airhockey.util.Geometry.Sphere;
@@ -129,13 +130,19 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
                 mBlueMalletPosition.x,
                 mBlueMalletPosition.y,
                 mBlueMalletPosition.z), mMallet.mHeight / 2f);
-        mMalletPressed = Geometry.intersects(malletBoundingSphere, ray);
+        mMalletPressed = intersects(malletBoundingSphere, ray);
         if (mMalletPressed) {
             Log.v(TAG, "mallet pressed");
         }
     }
 
     public void handleTouchDrag(float normalizeX, float normalizeY) {
+        if (mMalletPressed) {
+            Ray ray = convertNormalized2DPointToRay(normalizeX, normalizeY);
+            Plane plane = new Plane(new Point(0f,0f,0f), new Vector(0f, 1f, 0f));
+            Point touchPoint = Geometry.intersectionPoint(ray, plane);
+            mBlueMalletPosition = new Point(touchPoint.x, mMallet.mHeight/2f, touchPoint.z);
+        }
     }
 
     private Ray convertNormalized2DPointToRay(float normalizedX, float normalizedY) {

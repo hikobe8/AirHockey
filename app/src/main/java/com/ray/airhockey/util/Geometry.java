@@ -96,6 +96,20 @@ public class Geometry {
             );
         }
 
+        public float dotProduct(Vector other) {
+            return x * other.x
+                    + y * other.y
+                    + z * other.z;
+        }
+
+        public Vector scale(float scale) {
+            return new Vector(
+                    x * scale,
+                    y * scale,
+                    z * scale
+            );
+        }
+
     }
 
     public static Vector vectorBetween(Point from, Point to) {
@@ -119,5 +133,23 @@ public class Geometry {
         return areaOfTriangleTimesTwo / lengthOfBase;
     }
 
+    public static class Plane {
+        public final Point mPoint;
+        public final Vector normal;
+
+        public Plane(Point point, Vector normal) {
+            mPoint = point;
+            this.normal = normal;
+        }
+    }
+
+    public static Point intersectionPoint(Ray ray, Plane plane) {
+        Vector rayToPlaneVector = vectorBetween(ray.mPoint, plane.mPoint);
+
+        float scaleFactor = rayToPlaneVector.dotProduct(plane.normal) / ray.mVector.dotProduct(plane.normal);
+
+        return ray.mPoint.translate(ray.mVector.scale(scaleFactor));
+
+    }
 
 }
