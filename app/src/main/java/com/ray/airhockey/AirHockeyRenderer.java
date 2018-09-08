@@ -78,7 +78,9 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         glViewport(0, 0, width, height);
+        //设置透视矩阵
         MatrixHelper.perspectiveM(mProjectionMatrix, 45f, width * 1.f / height, 1f, 10f);
+        //设置视图矩阵
         setLookAtM(mViewMatrix, 0, 0f, 1.2f, 2.2f, 0f, 0f, 0f, 0f, 1f, 0f);
     }
 
@@ -112,13 +114,17 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     }
 
     private void positionTableInScene() {
+        //设置模型矩阵为单位矩阵
         setIdentityM(mModelMatrix, 0);
+        //绕x轴旋转 -90 度
         rotateM(mModelMatrix, 0, -90f, 1f, 0f, 0f);
+        //设置世界矩阵 = 视图矩阵 * 模型矩阵
         multiplyMM(mModelViewProjectionMatrix, 0, mViewProjectionMatrix, 0, mModelMatrix, 0);
     }
 
     private void positionObjectInScene(float x, float y, float z) {
         setIdentityM(mModelMatrix, 0);
+        //更新模型矩阵 平移操作
         translateM(mModelMatrix, 0, x, y, z);
         multiplyMM(mModelViewProjectionMatrix, 0, mViewProjectionMatrix, 0, mModelMatrix, 0);
     }
@@ -134,6 +140,7 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
         if (mMalletPressed) {
             Log.v(TAG, "mallet pressed");
         }
+
     }
 
     public void handleTouchDrag(float normalizeX, float normalizeY) {
